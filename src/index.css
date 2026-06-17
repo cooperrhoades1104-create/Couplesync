@@ -1,1 +1,55 @@
 @import "tailwindcss";
+
+/* Brand colors from designer's brand kit */
+@theme {
+  --color-rose: #D8829D;
+  --color-rose-50: #fdf2f5;
+  --color-rose-100: #fbe8ee;
+  --color-rose-200: #f7d1dd;
+  --color-rose-300: #f0adc2;
+  --color-rose-400: #e68aa6;
+  --color-rose-500: #d8829d;
+  --color-rose-600: #c05a7a;
+  --color-rose-700: #a14362;
+  --color-rose-800: #863a52;
+  --color-rose-900: #713446;
+  --color-gold: #E6B96D;
+  --color-gold-50: #fdf8ee;
+  --color-gold-100: #f9edcd;
+  --color-gold-200: #f3da99;
+  --color-gold-300: #ecc56b;
+  --color-gold-400: #e6b96d;
+  --color-gold-500: #d9a04a;
+  --color-gold-600: #c18535;
+  --color-gold-700: #a0692d;
+  --color-gold-800: #83552a;
+  --color-gold-900: #6d4626;
+  --color-cream: #FDF9F3;
+  --color-charcoal: #333333;
+  --color-muted: #8E8E8E;
+  --radius-card: 16px;
+  --radius-button: 12px;
+  --radius-input: 8px;
+  --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Base styles */
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--color-cream);
+  color: var(--color-charcoal);
+}
+
+/* Heading font */
+h1, h2, h3, h4 {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+/* Playfair for gradient headings */
+.gradient-heading {
+  font-family: 'Playfair Display', Georgia, serif;
+  background: linear-gradient(135deg, var(--color-rose), var(--color-gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}

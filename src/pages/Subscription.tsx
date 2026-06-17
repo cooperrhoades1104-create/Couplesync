@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 import { api } from '../lib/api';
-import { useAuth } from '../hooks/useAuth';
 
 export default function Subscription() {
-  const { user } = useAuth();
   const [tier, setTier] = useState('free');
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
@@ -50,27 +48,26 @@ export default function Subscription() {
   return (
     <div className="max-w-lg mx-auto space-y-6 pt-8">
       <div className="text-center">
-        <h1 className="text-2xl font-bold text-gray-800">Subscription</h1>
-        <p className="text-gray-500 mt-1">Unlock all features with Premium</p>
+        <h1 className="text-2xl font-semibold text-charcoal">Subscription</h1>
+        <p className="text-muted mt-1">Unlock all features with Premium</p>
       </div>
 
       {message && (
-        <div className="bg-green-50 text-green-700 p-3 rounded-lg text-sm text-center">
+        <div className="bg-green-50 text-green-700 p-3 rounded-card text-sm text-center font-medium">
           {message}
         </div>
       )}
 
       {/* Current Plan */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+      <div className="bg-white rounded-card shadow-card p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-gray-800">Current Plan</h2>
+          <h2 className="font-semibold text-charcoal">Current Plan</h2>
           <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-            tier === 'premium' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-600'
+            tier === 'premium' ? 'bg-gold-100 text-gold-800' : 'bg-gray-100 text-muted'
           }`}>
             {tier === 'premium' ? 'Premium' : 'Free'}
           </span>
         </div>
-
         <div className="space-y-3">
           <FeatureRow included title="Shared Calendar" free premium />
           <FeatureRow included title="Busy/Free Status" free premium />
@@ -81,16 +78,15 @@ export default function Subscription() {
       </div>
 
       {/* Upgrade Card */}
-      <div className={`rounded-xl border-2 p-6 ${
-        tier === 'premium' ? 'border-green-200 bg-green-50' : 'border-pink-200 bg-white'
+      <div className={`rounded-card border-2 p-6 ${
+        tier === 'premium' ? 'border-green-200 bg-green-50' : 'border-rose-200 bg-white'
       }`}>
         <div className="text-center mb-4">
           <div className="text-4xl mb-2">💜</div>
-          <h2 className="text-xl font-bold text-gray-800">CoupleSync Premium</h2>
-          <p className="text-3xl font-bold text-gray-900 mt-2">$4.99<span className="text-lg font-normal text-gray-500">/month</span></p>
+          <h2 className="text-xl font-semibold text-charcoal">CoupleSync Premium</h2>
+          <p className="text-3xl font-bold text-charcoal mt-2">$4.99<span className="text-lg font-normal text-muted">/month</span></p>
         </div>
-
-        <ul className="space-y-2 text-sm text-gray-600 mb-6">
+        <ul className="space-y-2 text-sm text-muted mb-6">
           <li className="flex items-center gap-2">✅ Everything in Free</li>
           <li className="flex items-center gap-2">😊 Daily mood check-ins</li>
           <li className="flex items-center gap-2">💡 Date night suggestions</li>
@@ -99,19 +95,13 @@ export default function Subscription() {
         </ul>
 
         {tier === 'premium' ? (
-          <button
-            onClick={handleCancel}
-            disabled={loading}
-            className="w-full py-3 border border-red-200 text-red-600 font-medium rounded-lg hover:bg-red-50 transition disabled:opacity-50"
-          >
+          <button onClick={handleCancel} disabled={loading}
+            className="w-full py-3 border border-red-200 text-red-600 font-medium rounded-button hover:bg-red-50 transition disabled:opacity-50 min-h-[44px]">
             {loading ? 'Processing...' : 'Cancel Subscription'}
           </button>
         ) : (
-          <button
-            onClick={handleUpgrade}
-            disabled={loading}
-            className="w-full py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold rounded-lg hover:opacity-90 transition disabled:opacity-50"
-          >
+          <button onClick={handleUpgrade} disabled={loading}
+            className="w-full py-3 bg-gradient-to-r from-rose to-gold text-white font-semibold rounded-button hover:opacity-90 transition disabled:opacity-50 min-h-[44px]">
             {loading ? 'Processing...' : 'Upgrade to Premium'}
           </button>
         )}
@@ -124,8 +114,8 @@ function FeatureRow({ included, title, free, premium }: { included?: boolean; ti
   return (
     <div className="flex items-center gap-2 text-sm">
       <span>{included ? '✅' : '❌'}</span>
-      <span className={included ? 'text-gray-800' : 'text-gray-400'}>{title}</span>
-      <span className="ml-auto text-xs text-gray-400">
+      <span className={included ? 'text-charcoal' : 'text-muted'}>{title}</span>
+      <span className="ml-auto text-xs text-muted">
         {free && premium ? 'Free + Premium' : premium ? 'Premium' : ''}
       </span>
     </div>

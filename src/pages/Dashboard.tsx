@@ -4,6 +4,15 @@ import { api } from '../lib/api';
 import { Link } from 'react-router-dom';
 import type { CalendarEvent, ConflictAlert, MoodCheckin } from '../types';
 
+const moods = [
+  { emoji: '😊', label: 'Happy' },
+  { emoji: '🥰', label: 'Loved' },
+  { emoji: '😐', label: 'Okay' },
+  { emoji: '😢', label: 'Sad' },
+  { emoji: '😤', label: 'Frustrated' },
+  { emoji: '😴', label: 'Tired' },
+];
+
 export default function Dashboard() {
   const { user, partner } = useAuth();
   const [events, setEvents] = useState<CalendarEvent[]>([]);
@@ -66,35 +75,38 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-800">
-          Hello, {user?.name}!
-        </h1>
-        <p className="text-gray-500">{dateStr}</p>
-        {partner && (
-          <p className="text-gray-500 text-sm mt-1">
-            Synced with <span className="font-medium text-gray-700">{partner.name}</span>
-          </p>
-        )}
-        {!partner && (
-          <p className="text-amber-600 text-sm mt-1">
-            Waiting for your partner to join. Share your couple code!
-          </p>
-        )}
+      <div className="flex items-center gap-4">
+        <img src="/logo-v2.png" alt="CoupleSync" className="w-12 h-12 rounded-xl" />
+        <div>
+          <h1 className="text-2xl font-semibold text-charcoal">
+            Hello, {user?.name}!
+          </h1>
+          <p className="text-muted text-sm">{dateStr}</p>
+          {partner ? (
+            <p className="text-muted text-xs mt-0.5">
+              Synced with <span className="font-medium text-charcoal">{partner.name}</span>
+            </p>
+          ) : (
+            <p className="text-gold-600 text-xs mt-0.5 font-medium">
+              Waiting for your partner. Share your couple code!
+            </p>
+          )}
+        </div>
       </div>
 
       {/* Conflicts Alert */}
       {conflicts.length > 0 && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+        <div className="bg-rose-50 border border-rose-200 rounded-card p-5">
           <div className="flex items-start gap-3">
-            <span className="text-xl">⚡</span>
+            <span className="text-xl mt-0.5">⚡</span>
             <div>
-              <h3 className="font-semibold text-amber-800">
-                {conflicts.length} scheduling conflict{conflicts.length > 1 ? 's' : ''} detected
+              <h3 className="font-semibold text-rose-800">
+                {conflicts.length} scheduling conflict{conflicts.length > 1 ? 's' : ''}
               </h3>
               <ul className="mt-2 space-y-1">
                 {conflicts.slice(0, 3).map((c, i) => (
-                  <li key={i} className="text-sm text-amber-700">
+                  <li key={i} className="text-sm text-rose-700 flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-rose flex-shrink-0" />
                     <strong>{c.event1_user}</strong> & <strong>{c.event2_user}</strong> have overlapping events
                   </li>
                 ))}
@@ -104,28 +116,37 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Today's Events */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+      {/* Today's Events Card */}
+      <div className="bg-white rounded-card shadow-card p-5">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-gray-800">Today's Events</h2>
-          <Link to="/calendar" className="text-sm text-pink-600 hover:underline">
+          <h2 className="text-lg font-semibold text-charcoal">Today's Events</h2>
+          <Link to="/calendar" className="text-sm text-rose hover:underline font-medium">
             View all
           </Link>
         </div>
 
         {todayEvents.length === 0 ? (
-          <p className="text-gray-400 text-sm py-4 text-center">No events scheduled today</p>
+          <div className="text-center py-8">
+            <p className="text-muted text-sm">Nothing scheduled today</p>
+            <Link to="/calendar" className="mt-2 inline-block text-rose text-sm font-medium hover:underline">
+              Add an event
+            </Link>
+          </div>
         ) : (
           <div className="space-y-2">
             {todayEvents.map((event) => (
-              <div key={event.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                <div className={`w-2 h-2 rounded-full ${event.is_busy ? 'bg-red-400' : 'bg-green-400'}`} />
+              <div key={event.id} className="flex items-center gap-3 p-3 bg-cream rounded-lg">
+                <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
+                  event.user_id === user?.id ? 'bg-rose' : 'bg-gold'
+                }`} />
                 <div className="flex-1">
-                  <p className="font-medium text-sm text-gray-800">{event.title}</p>
-                  <p className="text-xs text-gray-500">
-                    {new Date(event.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} -
+                  <p className="font-medium text-sm text-charcoal">{event.title}</p>
+                  <p className="text-xs text-muted">
+                    {new Date(event.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {' — '}
                     {new Date(event.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    {event.user_name && ` • ${event.user_name}`}
+                    {event.user_name && <span> • {event.user_name}</span>}
+                    {event.is_busy === 1 && <span className="ml-2 text-rose">🔴 Busy</span>}
                   </p>
                 </div>
               </div>
@@ -134,51 +155,53 @@ export default function Dashboard() {
         )}
       </div>
 
-      {/* Quick actions row */}
+      {/* Quick Actions */}
       <div className="grid grid-cols-2 gap-4">
         <Link
           to="/calendar"
-          className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:border-pink-200 transition text-center"
+          className="bg-white rounded-card shadow-card p-5 hover:border-rose/30 hover:shadow-md transition-all text-center border border-transparent"
         >
           <div className="text-3xl mb-2">📅</div>
-          <p className="font-medium text-gray-800 text-sm">Add Event</p>
+          <p className="font-medium text-charcoal text-sm">Add Event</p>
         </Link>
 
-        <Link
-          to={tier === 'premium' ? '#' : '/subscription'}
-          onClick={(e) => { if (tier !== 'premium') return; e.preventDefault(); }}
-          className={`bg-white rounded-xl shadow-sm border border-gray-100 p-5 transition text-center ${
-            tier === 'premium' ? 'hover:border-pink-200' : 'opacity-60'
-          }`}
-        >
+        <div className={`bg-white rounded-card shadow-card p-5 text-center border border-transparent ${
+          tier !== 'premium' ? 'opacity-60' : 'hover:border-gold/30 hover:shadow-md transition-all'
+        }`}>
           <div className="text-3xl mb-2">💡</div>
-          <p className="font-medium text-gray-800 text-sm">Date Ideas</p>
-          {tier !== 'premium' && <p className="text-xs text-gray-400 mt-1">Premium</p>}
-        </Link>
+          <p className="font-medium text-charcoal text-sm">Date Ideas</p>
+          {tier !== 'premium' && (
+            <Link to="/subscription" className="text-xs text-gold-600 font-medium mt-1 inline-block">
+              Premium
+            </Link>
+          )}
+        </div>
       </div>
 
       {/* Mood Check-in (Premium) */}
       {tier === 'premium' && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-          <h2 className="font-semibold text-gray-800 mb-3">Mood Check-in</h2>
+        <div className="bg-white rounded-card shadow-card p-5">
+          <h2 className="text-lg font-semibold text-charcoal mb-3">Mood Check-in</h2>
 
           {moodSubmitted ? (
-            <div className="bg-green-50 text-green-700 p-4 rounded-lg text-sm text-center">
+            <div className="bg-rose-50 text-rose-700 p-4 rounded-card text-sm text-center font-medium">
               Checked in for today! 💜
             </div>
           ) : (
             <form onSubmit={handleMoodSubmit} className="space-y-3">
-              <div className="flex gap-2">
-                {['😊', '😐', '😢', '😤', '🥰', '😴'].map((emoji) => (
+              <div className="flex gap-2 flex-wrap">
+                {moods.map((m) => (
                   <button
-                    key={emoji}
+                    key={m.emoji}
                     type="button"
-                    onClick={() => setMood(emoji)}
-                    className={`text-2xl p-2 rounded-lg transition ${
-                      mood === emoji ? 'bg-pink-100 scale-110' : 'hover:bg-gray-100'
+                    onClick={() => setMood(m.emoji)}
+                    className={`flex flex-col items-center gap-1 p-3 rounded-lg transition min-w-[52px] ${
+                      mood === m.emoji ? 'bg-rose-50 scale-110 shadow-sm' : 'hover:bg-gray-50'
                     }`}
+                    title={m.label}
                   >
-                    {emoji}
+                    <span className="text-2xl">{m.emoji}</span>
+                    <span className="text-[10px] text-muted">{m.label}</span>
                   </button>
                 ))}
               </div>
@@ -187,12 +210,12 @@ export default function Dashboard() {
                 value={moodNote}
                 onChange={(e) => setMoodNote(e.target.value)}
                 placeholder="Add a note (optional)"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-pink-400 focus:border-transparent outline-none"
+                className="w-full px-4 py-3 border border-gray-200 rounded-input text-sm focus:ring-2 focus:ring-rose/40 focus:border-rose outline-none"
               />
               <button
                 type="submit"
                 disabled={!mood}
-                className="w-full py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-medium rounded-lg text-sm hover:opacity-90 transition disabled:opacity-50"
+                className="w-full py-3 bg-rose text-white font-medium rounded-button text-sm hover:opacity-90 transition disabled:opacity-50 min-h-[44px]"
               >
                 Check in
               </button>
@@ -201,13 +224,13 @@ export default function Dashboard() {
 
           {recentMoods.length > 0 && (
             <div className="mt-4 space-y-2">
-              <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Recent check-ins</p>
+              <p className="text-xs text-muted font-medium uppercase tracking-wide">Recent check-ins</p>
               {recentMoods.map((m) => (
-                <div key={m.id} className="flex items-center gap-2 text-sm">
-                  <span className="text-lg">{m.mood}</span>
-                  <span className="text-gray-600">{m.user_name}</span>
-                  <span className="text-gray-400">• {m.date}</span>
-                  {m.note && <span className="text-gray-500 truncate">— {m.note}</span>}
+                <div key={m.id} className="flex items-center gap-3 p-2 bg-cream rounded-lg text-sm">
+                  <span className="text-xl">{m.mood}</span>
+                  <span className="text-charcoal font-medium">{m.user_name}</span>
+                  <span className="text-muted">• {m.date}</span>
+                  {m.note && <span className="text-muted truncate">— {m.note}</span>}
                 </div>
               ))}
             </div>
@@ -215,18 +238,19 @@ export default function Dashboard() {
         </div>
       )}
 
+      {/* Free Tier Upgrade Prompt */}
       {tier === 'free' && (
-        <div className="bg-gradient-to-r from-pink-50 to-purple-50 rounded-xl p-5 border border-pink-100">
-          <div className="flex items-center justify-between">
+        <div className="bg-gradient-to-r from-rose-50 to-gold-50 rounded-card p-5 border border-rose-100">
+          <div className="flex items-center justify-between gap-4">
             <div>
-              <h3 className="font-semibold text-gray-800">Upgrade to Premium</h3>
-              <p className="text-sm text-gray-600 mt-1">
-                Unlock mood check-ins, date night suggestions, and more.
+              <h3 className="font-semibold text-charcoal">Go Premium</h3>
+              <p className="text-sm text-muted mt-1">
+                Mood check-ins, date ideas, conflict alerts & more.
               </p>
             </div>
             <Link
               to="/subscription"
-              className="px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-medium rounded-lg text-sm hover:opacity-90"
+              className="px-5 py-2.5 bg-gradient-to-r from-rose to-gold text-white font-medium rounded-button text-sm hover:opacity-90 transition whitespace-nowrap"
             >
               $4.99/mo
             </Link>
