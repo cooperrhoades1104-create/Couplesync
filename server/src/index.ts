@@ -5,6 +5,7 @@ import authRoutes from './routes/auth';
 import eventRoutes from './routes/events';
 import moodRoutes from './routes/mood';
 import subscriptionRoutes from './routes/subscription';
+import stripeRoutes from './routes/stripe';
 
 const app = express();
 const PORT = parseInt(process.env.PORT || '3001', 10);
@@ -15,6 +16,14 @@ initDb();
 
 // Middleware
 app.use(cors());
+
+// Stripe webhook needs raw body — handle before JSON parser
+app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }), (req, res, next) => {
+  // Store raw body and pass to stripe route
+  (req as any).rawBody = req.body;
+  next();
+});
+
 app.use(express.json());
 
 // Routes
@@ -22,6 +31,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/mood', moodRoutes);
 app.use('/api/subscription', subscriptionRoutes);
+app.use('/api/stripe', stripeRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {

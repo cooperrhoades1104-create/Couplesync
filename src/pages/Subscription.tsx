@@ -6,22 +6,44 @@ export default function Subscription() {
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
 
   useEffect(() => {
     api.getSubscription().then((data) => {
       setTier(data.subscription.tier);
       setStatus(data.subscription.status);
     }).catch(() => {});
+
+    // Check for Stripe redirect params
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('success') === 'true') {
+      setMessage('Payment successful! Welcome to Premium! 💜');
+      setTier('premium');
+      setStatus('active');
+      // Clean URL
+      window.history.replaceState({}, '', '/subscription');
+    }
+    if (params.get('cancelled') === 'true') {
+      setMessage('Checkout was cancelled. No charges were made.');
+      window.history.replaceState({}, '', '/subscription');
+    }
   }, []);
 
   async function handleUpgrade() {
     setLoading(true);
     setMessage('');
     try {
-      const data = await api.upgradeSubscription();
-      setTier('premium');
-      setStatus('active');
-      setMessage(data.message);
+      const data = await api.createCheckoutSession();
+
+      if (data.url) {
+        // Redirect to Stripe Checkout
+        window.location.href = data.url;
+      } else if (data.message) {
+        // Dev mode fallback
+        setTier('premium');
+        setStatus('active');
+        setMessage(data.message);
+      }
     } catch (err: any) {
       setMessage(err.message);
     } finally {
@@ -30,18 +52,25 @@ export default function Subscription() {
   }
 
   async function handleCancel() {
-    if (!confirm('Are you sure you want to cancel your premium subscription?')) return;
-    setLoading(true);
-    setMessage('');
+    if (!confirm('Are you sure you want to cancel your premium subscription? This will be handled through Stripe.')) return;
+
+    // First try portal
     try {
-      const data = await api.cancelSubscription();
-      setTier('free');
-      setStatus('cancelled');
-      setMessage(data.message);
-    } catch (err: any) {
-      setMessage(err.message);
-    } finally {
-      setLoading(false);
+      const portalData = await api.createPortalSession();
+      window.location.href = portalData.url;
+    } catch {
+      // Fallback to direct cancel
+      setLoading(true);
+      try {
+        const data = await api.cancelSubscription();
+        setTier('free');
+        setStatus('cancelled');
+        setMessage(data.message);
+      } catch (err: any) {
+        setMessage(err.message);
+      } finally {
+        setLoading(false);
+      }
     }
   }
 
@@ -53,7 +82,13 @@ export default function Subscription() {
       </div>
 
       {message && (
-        <div className="bg-green-50 text-green-700 p-3 rounded-card text-sm text-center font-medium">
+        <div className={`p-3 rounded-card text-sm text-center font-medium ${
+          message.includes('successful') || message.includes('Welcome')
+            ? 'bg-green-50 text-green-700'
+            : message.includes('cancelled') || message.includes('error')
+            ? 'bg-rose-50 text-rose-700'
+            : 'bg-green-50 text-green-700'
+        }`}>
           {message}
         </div>
       )}
@@ -97,14 +132,18 @@ export default function Subscription() {
         {tier === 'premium' ? (
           <button onClick={handleCancel} disabled={loading}
             className="w-full py-3 border border-red-200 text-red-600 font-medium rounded-button hover:bg-red-50 transition disabled:opacity-50 min-h-[44px]">
-            {loading ? 'Processing...' : 'Cancel Subscription'}
+            {loading ? 'Processing...' : 'Manage Subscription (Stripe)'}
           </button>
         ) : (
           <button onClick={handleUpgrade} disabled={loading}
             className="w-full py-3 bg-gradient-to-r from-rose to-gold text-white font-semibold rounded-button hover:opacity-90 transition disabled:opacity-50 min-h-[44px]">
-            {loading ? 'Processing...' : 'Upgrade to Premium'}
+            {loading ? 'Redirecting to Stripe...' : 'Subscribe with Stripe — $4.99/mo'}
           </button>
         )}
+
+        <p className="text-xs text-muted text-center mt-3">
+          Secure payment via Stripe. Cancel anytime.
+        </p>
       </div>
     </div>
   );

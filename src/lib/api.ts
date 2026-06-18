@@ -89,4 +89,15 @@ export const api = {
   cancelSubscription: () => request<{ message: string; tier: string }>('/api/subscription/cancel', {
     method: 'POST',
   }),
+
+  // Stripe
+  createCheckoutSession: () =>
+    request<{ url: string | null; sessionId?: string; message?: string; tier?: string }>('/api/stripe/create-checkout', {
+      method: 'POST',
+    }),
+
+  createPortalSession: () =>
+    request<{ url: string }>('/api/stripe/portal', {
+      method: 'POST',
+    }),
 };
