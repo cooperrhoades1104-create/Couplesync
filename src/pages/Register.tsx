@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import logoV1 from '/logo-v1.png';
 
 export default function Register() {
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-cream p-5">
