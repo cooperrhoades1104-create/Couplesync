@@ -3,10 +3,10 @@ import { api } from '../lib/api';
 
 export default function Subscription() {
   const [tier, setTier] = useState('free');
-  const [_status, setStatus] = useState('');
+  const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
-  const [_checkoutUrl, _setCheckoutUrl] = useState<string | null>(null);
+  const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
 
   useEffect(() => {
     api.getSubscription().then((data) => {

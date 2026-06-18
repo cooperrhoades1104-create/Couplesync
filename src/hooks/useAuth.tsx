@@ -1,7 +1,7 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { useUser, useAuth as useClerkAuth } from '@clerk/clerk-react';
 import { api } from '../lib/api';
-import type { User, Partner } from '../types';
+import type { User, Partner, Subscription } from '../types';
 
 interface AuthContextType {
   user: User | null;
