@@ -12,7 +12,7 @@ export default function Calendar() {
   const [viewMode, setViewMode] = useState<'month' | 'week'>('month');
   const [showForm, setShowForm] = useState(false);
   const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [_selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   // Form state
   const [title, setTitle] = useState('');
@@ -88,7 +88,7 @@ export default function Calendar() {
     }
   }
 
-  async function deleteEvent(id: string) {
+  async function _deleteEvent(id: string) {
     if (!confirm('Delete this event?')) return;
     try {
       await api.deleteEvent(id);
