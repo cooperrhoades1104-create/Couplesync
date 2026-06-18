@@ -6,6 +6,7 @@ import eventRoutes from './routes/events';
 import moodRoutes from './routes/mood';
 import subscriptionRoutes from './routes/subscription';
 import stripeRoutes from './routes/stripe';
+import coupleRoutes from './routes/couple';
 
 const app = express();
 const PORT = parseInt(process.env.PORT || '3001', 10);
@@ -32,6 +33,7 @@ app.use('/api/events', eventRoutes);
 app.use('/api/mood', moodRoutes);
 app.use('/api/subscription', subscriptionRoutes);
 app.use('/api/stripe', stripeRoutes);
+app.use('/api/couple', coupleRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {

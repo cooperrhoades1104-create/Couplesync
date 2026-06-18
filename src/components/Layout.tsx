@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
+import { useClerk } from '@clerk/clerk-react';
 import { api } from '../lib/api';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 
 export default function Layout() {
-  const { user, partner, logout } = useAuth();
+  const { user, partner } = useAuth();
+  const { signOut } = useClerk();
   const location = useLocation();
   const [tier, setTier] = useState('free');
 
@@ -67,7 +69,7 @@ export default function Layout() {
             </div>
 
             <button
-              onClick={logout}
+              onClick={() => signOut()}
               className="text-sm text-muted hover:text-rose transition px-2"
             >
               Logout
