@@ -54,9 +54,9 @@ The app is now live at `http://0.0.0.0:3000`.
 ### Railway (Recommended)
 1. Push code to GitHub repo
 2. Create a new Railway project from the repo
-3. Set the root directory to `server/`
-4. Build command: `cd .. && npm install && npx vite build && cd server && npm install`
-5. Start command: `npx tsx src/index.ts`
+3. **Root Directory**: leave **blank** (not `server/`)
+4. **Build Command**: `npm install && npx vite build && cd server && npm install`
+5. **Start Command**: `cd server && npx tsx src/index.ts`
 6. Add environment variables in Railway dashboard
 7. Railway auto-provisions a public URL
 

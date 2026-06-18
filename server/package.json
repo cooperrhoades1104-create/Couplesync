@@ -21,6 +21,7 @@
     "jose": "^6.2.3",
     "jsonwebtoken": "^9.0.3",
     "stripe": "^17.7.0",
+    "tsx": "^4.22.4",
     "uuid": "^14.0.0"
   },
   "devDependencies": {
@@ -32,7 +33,6 @@
     "@types/node": "^25.9.3",
     "@types/uuid": "^10.0.0",
     "ts-node": "^10.9.2",
-    "tsx": "^4.22.4",
     "typescript": "^6.0.3"
   }
 }
