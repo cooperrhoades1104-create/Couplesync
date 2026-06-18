@@ -105,11 +105,12 @@ export const api = {
 
   // Stripe
   createCheckoutSession: () =>
-    request<{ url: string | null; sessionId?: string; message?: string; tier?: string }>('/api/stripe/create-checkout', {
+    request<{ url: string | null; priceId?: string; message?: string; tier?: string }>('/api/stripe/create-checkout', {
       method: 'POST',
     }),
-  createPortalSession: () =>
-    request<{ url: string }>('/api/stripe/portal', {
+
+  confirmPayment: () =>
+    request<{ message: string; tier: string }>('/api/stripe/confirm', {
       method: 'POST',
     }),
 };

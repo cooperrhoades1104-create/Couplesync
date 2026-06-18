@@ -6,7 +6,6 @@ export default function Subscription() {
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
-  const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
 
   useEffect(() => {
     api.getSubscription().then((data) => {
@@ -17,17 +16,29 @@ export default function Subscription() {
     // Check for Stripe redirect params
     const params = new URLSearchParams(window.location.search);
     if (params.get('success') === 'true') {
-      setMessage('Payment successful! Welcome to Premium! 💜');
-      setTier('premium');
-      setStatus('active');
-      // Clean URL
-      window.history.replaceState({}, '', '/subscription');
+      handlePaymentSuccess();
     }
     if (params.get('cancelled') === 'true') {
       setMessage('Checkout was cancelled. No charges were made.');
       window.history.replaceState({}, '', '/subscription');
     }
   }, []);
+
+  async function handlePaymentSuccess() {
+    setMessage('Processing your payment...');
+    try {
+      const data = await api.confirmPayment();
+      setTier('premium');
+      setStatus('active');
+      setMessage('Payment successful! Welcome to Premium! 💜');
+      window.history.replaceState({}, '', '/subscription');
+    } catch (err: any) {
+      setMessage('Payment confirmed! If this persists, contact support.');
+      setTier('premium');
+      setStatus('active');
+      window.history.replaceState({}, '', '/subscription');
+    }
+  }
 
   async function handleUpgrade() {
     setLoading(true);
@@ -52,25 +63,17 @@ export default function Subscription() {
   }
 
   async function handleCancel() {
-    if (!confirm('Are you sure you want to cancel your premium subscription? This will be handled through Stripe.')) return;
-
-    // First try portal
+    if (!confirm('Are you sure you want to cancel your premium subscription?')) return;
+    setLoading(true);
     try {
-      const portalData = await api.createPortalSession();
-      window.location.href = portalData.url;
-    } catch {
-      // Fallback to direct cancel
-      setLoading(true);
-      try {
-        const data = await api.cancelSubscription();
-        setTier('free');
-        setStatus('cancelled');
-        setMessage(data.message);
-      } catch (err: any) {
-        setMessage(err.message);
-      } finally {
-        setLoading(false);
-      }
+      const data = await api.cancelSubscription();
+      setTier('free');
+      setStatus('cancelled');
+      setMessage(data.message);
+    } catch (err: any) {
+      setMessage(err.message);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -83,7 +86,7 @@ export default function Subscription() {
 
       {message && (
         <div className={`p-3 rounded-card text-sm text-center font-medium ${
-          message.includes('successful') || message.includes('Welcome')
+          message.includes('Welcome') || message.includes('successful')
             ? 'bg-green-50 text-green-700'
             : message.includes('cancelled') || message.includes('error')
             ? 'bg-rose-50 text-rose-700'
@@ -132,7 +135,7 @@ export default function Subscription() {
         {tier === 'premium' ? (
           <button onClick={handleCancel} disabled={loading}
             className="w-full py-3 border border-red-200 text-red-600 font-medium rounded-button hover:bg-red-50 transition disabled:opacity-50 min-h-[44px]">
-            {loading ? 'Processing...' : 'Manage Subscription (Stripe)'}
+            {loading ? 'Processing...' : 'Cancel Subscription'}
           </button>
         ) : (
           <button onClick={handleUpgrade} disabled={loading}
